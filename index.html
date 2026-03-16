@@ -532,6 +532,28 @@
     </style>
 
     <script>
+        /* ── Autoplay menu music on first user interaction ── */
+        (function () {
+            const menuMusic = document.getElementById('menu-music');
+            if (!menuMusic) return;
+
+            // Try immediately (works if browser allows autoplay)
+            menuMusic.play().catch(() => {
+                // Blocked by browser — wait for first interaction
+                function startMusic() {
+                    menuMusic.play().catch(() => {});
+                    document.removeEventListener('click', startMusic);
+                    document.removeEventListener('keydown', startMusic);
+                    document.removeEventListener('touchstart', startMusic);
+                }
+                document.addEventListener('click', startMusic);
+                document.addEventListener('keydown', startMusic);
+                document.addEventListener('touchstart', startMusic);
+            });
+        })();
+    </script>
+
+    <script>
         (function () {
             const mainMenu       = document.getElementById('main-menu');
             const menuMusic      = document.getElementById('menu-music');

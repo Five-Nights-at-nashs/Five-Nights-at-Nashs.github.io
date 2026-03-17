@@ -468,9 +468,9 @@ button {
     position: absolute;
     top: 5vh;
     right: 7vw;
-    /* Always maintain 4:3 — clamp width so height never exceeds 80vh */
-    width: min(70vw, calc(80vh / 0.75));
-    height: calc(min(70vw, calc(80vh / 0.75)) * 0.75);
+    /* Always maintain 16:9 — clamp width so height never exceeds 80vh */
+    width: min(70vw, calc(80vh / 0.5625));
+    height: calc(min(70vw, calc(80vh / 0.5625)) * 0.5625);
     background-size: 100% 100%; /* stretch to exactly fill panel, matching character overlay */
     background-position: center;
     background-repeat: no-repeat;
@@ -1363,10 +1363,10 @@ background-size: 40%;
         height: 5vw;
     }
     
-    /* Camera panel adjustments */
+    /* Camera panel adjustments - 16:9 for portrait mobile */
     #camera-panel {
         width: 90vw;
-        height: 70vh;
+        height: calc(90vw * 0.5625);
         right: 5vw;
         top: 10vh;
     }

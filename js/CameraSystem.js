@@ -422,17 +422,16 @@ class CameraSystem {
         console.log('🔍 Has characterImages:', !!this.characterImages);
         console.log('🔍 Has image for current cam:', this.characterImages ? !!this.characterImages[currentCam] : 'N/A');
         
-        // 显示霍金（如果激活且在cam6）
-        if (hawkingActive && currentCam === 'cam6') {
+  if (hawkingActive && currentCam === 'cam6') {
             const hawkingImg = document.createElement('img');
             hawkingImg.src = 'assets/images/mrstephen.png';
             hawkingImg.style.position = 'absolute';
             hawkingImg.className = 'visible hawking-character';
             hawkingImg.style.zIndex = '3'; // Hawking 在最上层
-            hawkingImg.style.left = '59.6%';
-            hawkingImg.style.bottom = '0.9%';
-            hawkingImg.style.width = '37%';
-            hawkingImg.style.transform = 'translateX(-50%) rotate(-5deg)';
+            hawkingImg.style.left = '54.8%';
+            hawkingImg.style.bottom = '16.2%';
+            hawkingImg.style.width = '23.4%';
+            hawkingImg.style.transform = 'translateX(-50%) rotate(-2deg)';
             hawkingImg.style.filter = 'brightness(0.33) contrast(1) saturate(1)';
             
             characterOverlay.appendChild(hawkingImg);
@@ -505,7 +504,7 @@ class CameraSystem {
                 trumpImg.src = trumpImages[currentCam];
                 trumpImg.style.position = 'absolute';
                 trumpImg.className = 'visible trump-character';
-                trumpImg.style.zIndex = '2'; // Trump 在上层
+                trumpImg.style.zIndex = (currentCam === 'cam6' || currentCam === 'cam11') ? '0' : '2'; // Behind EP on cam6 and cam11
                 
                 const pos = trumpPositions[currentCam];
                 if (pos) {

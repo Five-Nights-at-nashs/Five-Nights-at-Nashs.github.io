@@ -24,7 +24,7 @@ class UIManager {
         }
         
         // Only update scene image when camera is not open
-        if (!this.game.state.cameraOpen) {
+        if (!this.game.state.cameraOpen && !this.game.dylanShownLastTime) {
             const sceneKey = 'office';
             if (this.game.assets.images[sceneKey]) {
                 this.currentSceneImg.src = this.game.assets.images[sceneKey].src;
@@ -193,6 +193,7 @@ class UIManager {
                 this.game.isRotatingLeft = false;
                 this.game.isRotatingRight = false;
                 this.game.state.controlPanelOpen = true;
+                this.game.tryShowDylan();
             } else {
                 // Close panel
                 this.game.state.controlPanelOpen = false;
@@ -202,6 +203,7 @@ class UIManager {
             this.game.isRotatingLeft = false;
             this.game.isRotatingRight = false;
             this.game.state.controlPanelOpen = true;
+            this.game.tryShowDylan();
         }
     }
 

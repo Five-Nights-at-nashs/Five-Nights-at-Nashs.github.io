@@ -599,6 +599,38 @@ class Game {
         this.state.tutorialActive = false;
     }
     
+    // ==================== Dylan Easter Egg ====================
+
+    tryShowDylan() {
+        // Don't show if last open already showed Dylan
+        if (this.dylanShownLastTime) {
+            this.dylanShownLastTime = false;
+            this.removeDylan();
+            return;
+        }
+
+        // 1 in 20 chance
+        if (Math.random() < 1 / 20) {
+            this.dylanShownLastTime = true;
+            this.showDylan();
+        } else {
+            this.dylanShownLastTime = false;
+            this.removeDylan();
+        }
+    }
+
+    showDylan() {
+        this.ui.currentSceneImg.src = `${this.assets.getBasePath()}assets/images/dylan.png`;
+    }
+
+    removeDylan() {
+        if (this.ui.currentSceneImg) {
+            this.ui.currentSceneImg.src = this.assets.images.office.src;
+        }
+    }
+
+    // ==================== Dylan Easter Egg End ====================
+
     // Golden 霍金彩蛋效果
     showGoldenStephen() {
         console.log('JON HAS APPEARED!');

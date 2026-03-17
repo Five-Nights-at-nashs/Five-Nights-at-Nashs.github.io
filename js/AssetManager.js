@@ -64,6 +64,7 @@ class AssetManager {
             cam9: `${basePath}assets/images/Cam9.png`,
             cam10: `${basePath}assets/images/Cam10.png`,
             cam11: `${basePath}assets/images/Cam11.png`,
+            goldenstephenscare: `${basePath}assets/images/goldenstephen.png`,
             jumpscare: `${basePath}assets/images/jump.png`, // EP跳杀图片
             trumpJumpscare: `${basePath}assets/images/jumptrump.png`, // Trump跳杀图片
             hawkingJumpscare: `${basePath}assets/images/scaryhawking.png`, // Hawking跳杀图片

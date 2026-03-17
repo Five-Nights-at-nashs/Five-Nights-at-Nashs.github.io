@@ -69,6 +69,8 @@ class CameraSystem {
         this.cameraPanel.classList.remove('hidden');
         this.cameraPanel.classList.add('show');
         
+        this.game.tryShowDylan();
+        
         // console.log('📷 Camera panel classes after:', this.cameraPanel.className);
         // console.log('📷 Camera panel display:', window.getComputedStyle(this.cameraPanel).display);
         // console.log('📷 Camera panel opacity:', window.getComputedStyle(this.cameraPanel).opacity);
@@ -427,9 +429,9 @@ class CameraSystem {
             hawkingImg.style.position = 'absolute';
             hawkingImg.className = 'visible hawking-character';
             hawkingImg.style.zIndex = '3'; // Hawking 在最上层
-            hawkingImg.style.left = '55.8%';
-            hawkingImg.style.bottom = '16.2%';
-            hawkingImg.style.width = '24.3%';
+            hawkingImg.style.left = '59.6%';
+            hawkingImg.style.bottom = '0.9%';
+            hawkingImg.style.width = '37%';
             hawkingImg.style.transform = 'translateX(-50%) rotate(-5deg)';
             hawkingImg.style.filter = 'brightness(0.33) contrast(1) saturate(1)';
             
@@ -949,7 +951,7 @@ class CameraSystem {
             const night = this.game.state.currentNight;
             
             // Night 3-5 显示
-            const isNormalNight = night >= 3 && night <= 7;
+            const isNormalNight = night >= 3 && night <= 5;
             
             // Custom Night 且 Hawking AI > 0 时显示
             const isCustomNightWithHawking = this.game.state.customNight && 

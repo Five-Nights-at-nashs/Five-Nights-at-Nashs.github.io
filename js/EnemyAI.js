@@ -233,12 +233,12 @@ class EnemyAI {
         
         // 特朗普的图片配置（使用绝对路径）
         this.trumpImages = {
-            'cam10': 'assets/images/trump3.png',
+            'cam10': 'assets/images/trump5.png',
             'cam11': 'assets/images/trump3.png',
-            'cam9': 'assets/images/trump.png',
-            'cam8': 'assets/images/trump5.png',
-            'cam7': 'assets/images/trump3.png',
-            'cam6': 'assets/images/trump3.png',
+            'cam9': 'assets/images/trump3.png',
+            'cam8': 'assets/images/trump2.png',
+            'cam7': 'assets/images/trump4.png',
+            'cam6': 'assets/images/trump4.png',
             'cam5': 'assets/images/trump2.png',
             'cam1': 'assets/images/trump4.png',
             'cam2': 'assets/images/trump4.png',
@@ -322,22 +322,22 @@ class EnemyAI {
             'cam6': { left: '46.6%', bottom: '18.0%', width: '21.6%', transform: 'translateX(-50%) rotate(0deg)' },
             'cam5': { left: '12.1%', bottom: '-5%', width: '46.6%', transform: 'translateX(-50%) rotate(0deg)' },
             'cam4': { left: '90.0%', bottom: '0%', width: '40%', transform: 'translateX(-50%) rotate(0deg)' },
-            'cam3': { left: '93.4%', bottom: '15%', width: '36.9%', transform: 'translateX(-50%) rotate(0deg)' },
+            'cam3': { left: '92.4%', bottom: '15%', width: '36.9%', transform: 'translateX(-50%) rotate(0deg)' },
             'cam2': { left: '79.6%', bottom: '17.7%', width: '32.8%', transform: 'translateX(-50%) rotate(0deg)' },
         };
         
         // 角色明暗度配置（百分比）
         this.characterBrightness = {
             'cam11': 100,
-            'cam10': 65,
+            'cam10': 58,
             'cam1': 80,
             'cam9': 28,
             'cam8': 30,
             'cam7': 30,
             'cam6': 35,
             'cam5': 70,
-            'cam4': 5,
-            'cam3': 85,
+            'cam4': 12,
+            'cam3': 89.4,
             'cam2': 26,
         };
         
@@ -406,24 +406,24 @@ class EnemyAI {
         
         // 特朗普的位置配置（使用调试工具设置）
         this.trumpPositions = {
-            'cam10': { left: '10%', bottom: '0%', width: '40%', transform: 'translateX(-50%) rotate(0deg)' },
-            'cam11': { left: '38.2%', bottom: '0%', width: '40%', transform: 'translateX(-50%) rotate(0deg)' },
-            'cam9': { left: '0%', bottom: '34.6%', width: '13.9%', transform: 'translateX(-50%) rotate(0deg)' },
-            'cam8': { left: '80%', bottom: '42.5%', width: '25.1%', transform: 'translateX(-50%) rotate(0deg)' },
-            'cam7': { left: '7.4%', bottom: '0%', width: '41.4%', transform: 'translateX(-50%) rotate(0deg)' },
+            'cam10': { left: '60%', bottom: '30.5%', width: '20%', transform: 'translateX(-50%) rotate(0deg)' },
+            'cam11': { left: '57%', bottom: '-2%', width: '34%', transform: 'translateX(-50%) rotate(0deg)' },
+            'cam9': { left: '38.7%', bottom: '41.3%', width: '18.6%', transform: 'translateX(-50%) rotate(-2deg)' },
+            'cam8': { left: '27%', bottom: '16%', width: '37.1%', transform: 'translateX(-50%) rotate(0deg)' },
+            'cam7': { left: '59.7%', bottom: '38.6%', width: '19.8%', transform: 'translateX(-50%) rotate(0deg)' },
             'cam6': { left: '86.3%', bottom: '0%', width: '41.4%', transform: 'translateX(-50%) rotate(0deg)' },
             'cam5': { left: '0%', bottom: '0%', width: '29.3%', transform: 'translateX(-50%) rotate(0deg)' },
             'cam1': { left: '10.8%', bottom: '15%', width: '31.6%', transform: 'translateX(-50%) rotate(0deg)' },
             'cam2': { left: '77.2%', bottom: '32.3%', width: '31.6%', transform: 'translateX(-50%) rotate(0deg)' },
             'cam3': { left: '100%', bottom: '21.4%', width: '32.9%', transform: 'translateX(-50%) rotate(0deg)' },
-            'cam4': { left: '11%', bottom: '0%', width: '31.6%', transform: 'translateX(-50%) rotate(0deg)' },
+            'cam4': { left: '21.2%', bottom: '-9%', width: '33.0%', transform: 'translateX(-50%) rotate(0deg)' },
         };
         
         // 特朗普的明暗度配置
         this.trumpBrightness = {
-            'cam10': 31,
-            'cam11': 100,
-            'cam9': 29,
+            'cam10': 48,
+            'cam11': 30,
+            'cam9': 100,
             'cam8': 28,
             'cam7': 28,
             'cam6': 28,
@@ -431,14 +431,14 @@ class EnemyAI {
             'cam1': 40,
             'cam2': 31,
             'cam3': 19,
-            'cam4': 31,
+            'cam4': 36,
         };
         
         // 特朗普的旋转配置
         this.trumpRotation = {
             'cam10': 0,
             'cam11': 0,
-            'cam9': 0,
+            'cam9': -2,
             'cam8': 0,
             'cam7': 0,
             'cam6': 0,

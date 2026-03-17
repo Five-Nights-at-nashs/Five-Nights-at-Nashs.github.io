@@ -468,10 +468,10 @@ button {
     position: absolute;
     top: 5vh;
     right: 7vw;
-    width: 70vw;
-    height: calc(70vw * 0.75); /* 保持4:3宽高比 */
-    max-height: 80vh; /* 但不超过80vh */
-    background-size: cover;
+    /* Always maintain 4:3 — clamp width so height never exceeds 80vh */
+    width: min(70vw, calc(80vh / 0.75));
+    height: calc(min(70vw, calc(80vh / 0.75)) * 0.75);
+    background-size: 100% 100%; /* stretch to exactly fill panel, matching character overlay */
     background-position: center;
     background-repeat: no-repeat;
     background-color: #000;

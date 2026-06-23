@@ -1,4 +1,4 @@
-html {
+﻿html {
     width: 100%;
     height: 100%;
     overflow: hidden;
@@ -73,12 +73,16 @@ button {
     left: 0;
     width: 100%;
     height: 100%;
-    background: #000;
+    background: #000 url('assets/images/logo.png') center center / contain no-repeat;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
     z-index: 99999;
     transition: opacity 0.5s ease-out;
+}
+
+#preloader::before {
+    display: none;
 }
 
 #preloader.fade-out {
@@ -87,91 +91,53 @@ button {
 }
 
 .preloader-content {
+    position: relative;
+    z-index: 1;
     text-align: center;
+    width: 60%;
     max-width: 500px;
-    padding: 20px;
+    padding: 0 20px 30px;
 }
 
 .preloader-logo {
-    font-size: 3vw;
-    font-weight: bold;
-    color: #ff0000;
-    text-shadow: 
-        0 0 10px #ff0000,
-        0 0 20px #ff0000,
-        0 0 30px #ff0000,
-        2px 2px 4px #000;
-    margin-bottom: 40px;
-    font-family: 'Courier New', monospace;
-    letter-spacing: 0.2em;
-    line-height: 1.3;
-    animation: glowPulse 2s ease-in-out infinite;
-}
-
-@keyframes glowPulse {
-    0%, 100% {
-        text-shadow: 
-            0 0 10px #ff0000,
-            0 0 20px #ff0000,
-            0 0 30px #ff0000,
-            2px 2px 4px #000;
-    }
-    50% {
-        text-shadow: 
-            0 0 20px #ff0000,
-            0 0 30px #ff0000,
-            0 0 40px #ff0000,
-            0 0 50px #ff0000,
-            2px 2px 4px #000;
-    }
+    display: none;
 }
 
 .preloader-spinner {
-    position: relative;
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 30px;
+    display: none;
 }
 
-.spinner-ring {
-    position: absolute;
+/* Text reveal loading effect */
+.preloader-title-wrap {
+    display: none;
+}
+
+.preloader-title {
+    display: none;
+}
+
+.preloader-title-cover {
+    display: none;
+}
+
+#title-cover-bar {
+    position: fixed;
+    top: 0;
+    right: 0;
     width: 100%;
-    height: 100%;
-    border: 3px solid transparent;
-    border-top-color: #ff0000;
-    border-radius: 50%;
-    animation: spin 1.5s linear infinite;
-}
-
-.spinner-ring:nth-child(2) {
-    width: 70%;
-    height: 70%;
-    top: 15%;
-    left: 15%;
-    border-top-color: #cc0000;
-    animation-duration: 1.2s;
-    animation-direction: reverse;
-}
-
-.spinner-ring:nth-child(3) {
-    width: 40%;
-    height: 40%;
-    top: 30%;
-    left: 30%;
-    border-top-color: #990000;
-    animation-duration: 0.9s;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    height: 13.3%;
+    background: rgba(0, 0, 0, 0.85);
+    transition: width 0.3s ease;
+    z-index: 100000;
 }
 
 .preloader-text {
-    font-size: 1.5vw;
-    color: #fff;
+    display: none;
+}
+    font-size: 1.2vw;
+    color: #aaa;
     font-family: 'Courier New', monospace;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     letter-spacing: 0.3em;
 }
 
@@ -187,26 +153,11 @@ button {
 }
 
 .preloader-progress {
-    width: 100%;
-    height: 4px;
-    background: #333;
-    border-radius: 2px;
-    overflow: hidden;
-    margin-bottom: 10px;
-}
-
-.progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, #ff0000, #cc0000);
-    width: 0%;
-    transition: width 0.3s ease;
-    box-shadow: 0 0 10px #ff0000;
+    display: none;
 }
 
 .preloader-percentage {
-    font-size: 1.2vw;
-    color: #888;
-    font-family: 'Courier New', monospace;
+    display: none;
 }
 
 /* 通用隐藏类 */

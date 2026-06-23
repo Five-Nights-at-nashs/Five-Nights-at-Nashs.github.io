@@ -106,10 +106,16 @@ function disableBrowserDefaults() {
 function updatePreloadProgress(progress) {
     const progressBar = document.getElementById('progress-bar');
     const percentage = document.getElementById('preloader-percentage');
+    const titleCoverBar = document.getElementById('title-cover-bar');
     
     if (progressBar && percentage) {
         progressBar.style.width = progress + '%';
         percentage.textContent = Math.round(progress) + '%';
+    }
+    
+    // Shrink the bar from right as loading progresses
+    if (titleCoverBar) {
+        titleCoverBar.style.width = (100 - progress) + '%';
     }
 }
 
@@ -222,6 +228,7 @@ function hidePreloader() {
     const preloader = document.getElementById('preloader');
     if (preloader) {
         preloader.classList.add('fade-out');
+        staticNoise.stop();
         setTimeout(() => {
             preloader.style.display = 'none';
         }, 500);
@@ -234,6 +241,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     disableBrowserDefaults();
     
     // 先预加载所有资源
+    // Start static noise during preloader
+    staticNoise = new StaticNoise();
+    staticNoise.start();
+    
     await preloadGameAssets();
     
     // 预加载背景图片（用于恐怖脸效果）
@@ -244,8 +255,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     
     // 初始化游戏
     game = new Game();
-    staticNoise = new StaticNoise();
-    
+    staticNoise = new StaticNoise();    
     // 更新Continue按钮显示
     game.updateContinueButton();
     

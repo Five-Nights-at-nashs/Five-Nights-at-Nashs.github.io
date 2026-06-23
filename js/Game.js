@@ -633,7 +633,7 @@ class Game {
 
     // Golden 霍金彩蛋效果
     showGoldenStephen() {
-        console.log('JON HAS APPEARED!');
+        console.log('ED HAS APPEARED!');
         
         // 创建全屏金色霍金图层
         const goldenOverlay = document.createElement('div');
@@ -654,8 +654,8 @@ class Game {
         goldenImg.style.top = '50%';
         goldenImg.style.left = '50%';
         goldenImg.style.transform = 'translate(-50%, -50%)';
-        goldenImg.style.width = '80%';
-        goldenImg.style.height = '80%';
+        goldenImg.style.width = '120%';
+        goldenImg.style.height = '120%';
         goldenImg.style.objectFit = 'contain';
         goldenImg.style.opacity = '0';
         goldenImg.style.animation = 'golden-flicker 2s ease-in-out';

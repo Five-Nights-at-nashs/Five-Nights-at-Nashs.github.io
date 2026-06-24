@@ -459,6 +459,7 @@ class Game {
         
         // 重置摄像头系统的sound按钮计数
         this.camera.resetSoundButtonCount();
+        this.camera.codyTriggeredThisRun = false;
         
         // 恢复摄像头面板的display（之前可能被强制隐藏）
         const cameraPanel = document.getElementById('camera-panel');
@@ -630,6 +631,101 @@ class Game {
     }
 
     // ==================== Dylan Easter Egg End ====================
+
+    // ==================== Cody Easter Egg ====================
+
+    triggerCodyEasterEgg() {
+        // Mark as seen so it never auto-triggers again
+        localStorage.setItem('fnae_cody_seen', 'true');
+
+        // Stop everything
+        this.stopGame();
+        this.assets.stopSound('ambient');
+
+        const basePath = this.assets.getBasePath();
+
+        // Create fullscreen overlay
+        const overlay = document.createElement('div');
+        overlay.id = 'cody-easter-egg';
+        overlay.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 999999; display: flex;
+            align-items: center; justify-content: center; overflow: hidden;
+        `;
+
+        // Cody image — full height, centered
+        const codyImg = document.createElement('img');
+        codyImg.src = `${basePath}assets/images/cody.png`;
+        codyImg.style.cssText = `
+            height: 300%; top: 50; width: 400%; display: block;
+            position: relative; z-index: 2;
+        `;
+
+        // Static noise canvas on top
+        overlay.appendChild(codyImg);
+        document.body.appendChild(overlay);
+
+        // Start static noise using the existing StaticNoise instance
+        staticNoise.start();
+        // Move the static canvas on top of the overlay
+        const staticCanvas = document.getElementById('static-canvas');
+        if (staticCanvas) {
+            staticCanvas.style.zIndex = '1000000';
+            staticCanvas.style.display = 'block';
+        }
+
+        // Play jumpscare sound using preloaded asset
+        this.assets.sounds.jumpscare.currentTime = 0;
+        this.assets.sounds.jumpscare.volume = 1.0;
+        this.assets.sounds.jumpscare.play().catch(() => {});
+
+        // When jumpscare sound ends, fade cody out then play why.wav
+        this.assets.sounds.jumpscare.addEventListener('ended', () => {
+            // Fade cody image out
+            codyImg.style.transition = 'opacity 1s ease';
+            codyImg.style.opacity = '0';
+
+            // Wait for fade to finish, then play why.wav
+            setTimeout(() => {
+                this.assets.sounds.why.currentTime = 0;
+                this.assets.sounds.why.volume = 1.0;
+                this.assets.sounds.why.play().catch(() => {});
+
+            // When why.wav ends, fade to black then go to menu
+            this.assets.sounds.why.addEventListener('ended', () => {
+                // Restore static canvas to normal
+                if (staticCanvas) {
+                    staticCanvas.style.zIndex = '';
+                    staticNoise.stop();
+                }
+                overlay.style.transition = 'opacity 1.5s ease';
+                overlay.style.opacity = '0';
+                setTimeout(() => {
+                    overlay.remove();
+                    // Hide game screen and game over screen before going to menu
+                    this.gameScreen.classList.remove('active');
+                    if (this.gameOverElement) this.gameOverElement.classList.add('hidden');
+                    this.showMainMenu();
+                }, 1500);
+            });
+            }, 1000); // 1s fade duration
+        });
+    }
+
+    // Dev console command to re-trigger Cody easter egg
+    resetCodyEasterEgg() {
+        localStorage.removeItem('fnae_cody_seen');
+        localStorage.removeItem('fnae_fail_streak');
+        localStorage.removeItem('fnae_last_fail_night');
+        console.log('Cody easter egg reset. Will trigger on 4th consecutive fail.');
+    }
+
+    forceCodyEasterEgg() {
+        localStorage.removeItem('fnae_cody_seen');
+        this.triggerCodyEasterEgg();
+    }
+
+    // ==================== Cody Easter Egg End ====================
 
     // Golden 霍金彩蛋效果
     showGoldenStephen() {
@@ -870,15 +966,44 @@ class Game {
     }
 
     oxygenOut() {
+        if (!this.state.isGameRunning) return; // prevent double trigger
         this.stopGame();
         this.assets.stopSound('ambient');
-        // Oxygen depleted triggers jumpscare
-        this.enemyAI.triggerJumpscare();
+
+        // Fade to black overlay
+        const fadeOverlay = document.createElement('div');
+        fadeOverlay.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; opacity: 0; z-index: 99999;
+            transition: opacity 1.5s ease; pointer-events: none;
+        `;
+        document.body.appendChild(fadeOverlay);
+
+        // Trigger fade after element is painted
+        setTimeout(() => {
+            fadeOverlay.style.opacity = '1';
+        }, 50);
+
+        // After fade completes, show game over screen
+        setTimeout(() => {
+            fadeOverlay.remove();
+            this.gameOver('OXYGEN DEPLETED');
+        }, 1500);
     }
     
     gameOver(message) {
         this.stopGame();
         this.assets.stopSound('ambient');
+
+        // Track consecutive fails on same night for Cody easter egg
+        const lastFailNight = parseInt(localStorage.getItem('fnae_last_fail_night') || '0');
+        const failStreak = parseInt(localStorage.getItem('fnae_fail_streak') || '0');
+        if (lastFailNight === this.state.currentNight) {
+            localStorage.setItem('fnae_fail_streak', (failStreak + 1).toString());
+        } else {
+            localStorage.setItem('fnae_fail_streak', '1');
+            localStorage.setItem('fnae_last_fail_night', this.state.currentNight.toString());
+        }
         
         // 立即隐藏游戏画面
         this.gameScreen.classList.remove('active');

@@ -2,6 +2,7 @@
 class CameraSystem {
     constructor(game) {
         this.game = game;
+        this.codyTriggeredThisRun = false;
         this.cameraPanel = document.getElementById('camera-panel');
         this.currentCamLabel = document.getElementById('current-cam-label');
         this.cameraErrorLabel = document.getElementById('camera-error-label');
@@ -10,19 +11,19 @@ class CameraSystem {
         this.currentSoundToggle = false;
         this.staticVideo = document.getElementById('camera-static-video');
         
-        // 播放声音按钮状态
+        // Sound button state
         this.soundButtonCooldown = false;
         this.soundButtonUseCount = 0;
-        this.maxSoundUses = 5; // 连续使用5次后摄像头故障
-        this.cooldownTime = 8000; // 8秒冷却
-        this.cooldownInterval = null; // 冷却动画定时器
+        this.maxSoundUses = 5; // Camera fails after 5 consecutive uses
+        this.cooldownTime = 8000; // 8 second cooldown
+        this.cooldownInterval = null; // Cooldown animation timer
         
-        // 每个位置的连续吸引计数
+        // Consecutive attract count per location
         this.locationAttractCount = {}; // { 'cam11': 2, 'cam8': 1, ... }
-        this.maxLocationAttractCount = 2; // 同一位置最多连续吸引2次
-        this.lastEpLocation = null; // 记录EP的上一个位置，用于检测移动
+        this.maxLocationAttractCount = 2; // Max 2 consecutive attracts at same location
+        this.lastEpLocation = null; // Track EP's previous location to detect movement
         
-        // EP 角色配置 - 直接引用 EnemyAI 的配置（游戏初始化后会设置）
+        // EP character config - references EnemyAI config (set after game init)
         this.characterImages = null;
         this.characterPositions = null;
         this.characterBrightness = null;
@@ -68,7 +69,19 @@ class CameraSystem {
         this.game.state.cameraOpen = true;
         this.cameraPanel.classList.remove('hidden');
         this.cameraPanel.classList.add('show');
-        
+
+        // Check for Cody easter egg (3 fails in a row, first camera open, never seen before)
+        if (!localStorage.getItem('fnae_cody_seen')) {
+            const failStreak = parseInt(localStorage.getItem('fnae_fail_streak') || '0');
+            const lastFailNight = parseInt(localStorage.getItem('fnae_last_fail_night') || '0');
+            if (failStreak >= 3 && lastFailNight === this.game.state.currentNight && !this.codyTriggeredThisRun) {
+                this.codyTriggeredThisRun = true;
+                // Slight delay so camera opens first, then hijacks
+                setTimeout(() => this.game.triggerCodyEasterEgg(), 100);
+                return;
+            }
+        }
+
         this.game.tryShowDylan();
         
         // console.log('📷 Camera panel classes after:', this.cameraPanel.className);
@@ -83,10 +96,10 @@ class CameraSystem {
         
         this.createCameraGrid();
         
-        // 更新电击按钮显示
+        // Update shock button display
         this.updateShockButtonVisibility();
         
-        // 更新霍金警告位置（从风扇左边移到地图上）
+        // Update Hawking warning position (from fan left to map)
         if (this.game.enemyAI && this.game.enemyAI.hawking.active) {
             this.game.enemyAI.updateHawkingWarningDisplay();
         }
@@ -127,7 +140,7 @@ class CameraSystem {
     showCameraFailure() {
         console.log('Showing camera failure effect...');
         
-        // Night 5: 30% 概率触发 Golden 霍金彩蛋
+        // Night 5: 30% chance to trigger Golden Hawking easter egg
         if (this.game.state.currentNight === 5 && Math.random() < 0.3) {
             this.game.showGoldenStephen();
         }
@@ -208,7 +221,7 @@ class CameraSystem {
     
     // Fix camera
     restartCamera() {
-        // 如果控制面板正忙，不允许操作
+        // If control panel is busy, block action
         if (this.game.state.controlPanelBusy) {
             console.log('Control panel is busy, cannot restart camera');
             return;
@@ -216,22 +229,22 @@ class CameraSystem {
         
         console.log('Restarting camera system...');
         this.game.state.cameraRestarting = true;
-        this.game.state.controlPanelBusy = true; // 锁定控制面板
+        this.game.state.controlPanelBusy = true; // Lock control panel
         
-        // 播放心电图音效
+        // Play EKG sound
         this.game.assets.playSound('ekg', false, 0.8);
         
         // Restore after 4 seconds
         setTimeout(() => {
-            // 无论之前是否故障，重启后都恢复正常
+            // Always restore normal state after restart
             this.game.state.cameraFailed = false;
             this.game.state.cameraRestarting = false;
-            this.game.state.controlPanelBusy = false; // 解锁控制面板
+            this.game.state.controlPanelBusy = false; // Unlock control panel
             
-            // Stop static noise (如果有的话)
+            // Stop static noise (if playing)
             this.game.assets.stopSound('static');
             
-            // Reset sound button count (恢复5次使用次数)
+            // Reset sound button use count (restore 5 uses)
             this.resetSoundButtonCount();
             
             console.log('Camera system restored!');
@@ -259,7 +272,7 @@ class CameraSystem {
             console.log('Character overlay cleared');
         }
         
-        // 更新霍金警告位置（从地图移到风扇左边）
+        // Update Hawking warning position (from map to fan left)
         if (this.game.enemyAI && this.game.enemyAI.hawking.active) {
             this.game.enemyAI.updateHawkingWarningDisplay();
         }
@@ -288,19 +301,19 @@ class CameraSystem {
             cameraGrid.style.display = 'none';
         }
         
-        // 隐藏角色
+        // Hide characters
         const characterOverlay = document.getElementById('character-overlay');
         if (characterOverlay) {
             characterOverlay.style.display = 'none';
         }
         
-        // 暂时降低循环静态音的音量
+        // Temporarily lower looping static volume
         this.game.assets.setSoundVolume('staticLoop', 0.1);
         
-        // 播放正常音量的静态音效
+        // Play static at normal volume
         this.game.assets.playSound('static', false, 1.0);
         
-        // 1000ms 后停止静态音效
+        // Stop static sound after 1000ms
         setTimeout(() => {
             this.game.assets.stopSound('static');
         }, 1000);
@@ -333,20 +346,20 @@ class CameraSystem {
                 this.stopStatic();
                 this.cameraPanel.classList.remove('transitioning');
                 
-                // 显示地图
+                // Show map
                 if (cameraGrid) {
                     cameraGrid.style.display = 'block';
                 }
                 
-                // 显示角色
+                // Show characters
                 if (characterOverlay) {
                     characterOverlay.style.display = 'block';
                 }
                 
-                // 更新电击按钮显示（根据当前摄像头）
+                // Update shock button display (based on current cam)
                 this.updateShockButtonVisibility();
                 
-                // 恢复循环静态音的音量
+                // Restore looping static volume
                 this.game.assets.setSoundVolume('staticLoop', 0.3);
             }, 500);
         }, 500);
@@ -363,18 +376,18 @@ class CameraSystem {
             this.cameraPanel.style.backgroundImage = `url('${this.game.assets.images[this.game.state.currentCam].src}')`;
         }
         
-        // 更新摄像头标签
+        // Update camera label
         const camNum = this.game.state.currentCam.replace('cam', '');
         this.currentCamLabel.textContent = `CAM ${camNum}`;
         
-        // 更新角色显示
+        // Update character display
         this.updateCharacterDisplay();
         
-        // 更新电击按钮显示
+        // Update shock button display
         this.updateShockButtonVisibility();
     }
     
-    // 更新角色显示（支持多个敌人）
+    // Update character display (supports multiple enemies)
     updateCharacterDisplay() {
         const currentCam = this.game.state.currentCam;
         const epLocation = this.game.enemyAI.getCurrentLocation();
@@ -383,7 +396,7 @@ class CameraSystem {
         
         console.log(`updateCharacterDisplay - Current Cam: ${currentCam}, EP: ${epLocation}, Trump: ${trumpLocation}, Hawking: ${hawkingActive}, Night: ${this.game.state.currentNight}`);
         
-        // 打印所有相关元素的z-index
+        // Log z-index of all relevant elements
         console.log('🔍 Z-Index Debug:');
         console.log('  - cameraPanel:', window.getComputedStyle(this.cameraPanel).zIndex);
         const staticVideo = document.getElementById('camera-static-video');
@@ -397,7 +410,7 @@ class CameraSystem {
             console.log('  - characterOverlay children count:', existingOverlay.children.length);
         }
         
-        // 获取或创建角色容器
+        // Get or create character container
         let characterOverlay = document.getElementById('character-overlay');
         if (!characterOverlay) {
             characterOverlay = document.createElement('div');
@@ -413,7 +426,7 @@ class CameraSystem {
             this.cameraPanel.appendChild(characterOverlay);
         }
         
-        // 清空之前的角色
+        // Clear previous characters
         characterOverlay.innerHTML = '';
         
         console.log('🔍 Character overlay cleared, checking EP display conditions...');
@@ -427,7 +440,7 @@ class CameraSystem {
             hawkingImg.src = 'assets/images/mrstephen.png';
             hawkingImg.style.position = 'absolute';
             hawkingImg.className = 'visible hawking-character';
-            hawkingImg.style.zIndex = '3'; // Hawking 在最上层
+            hawkingImg.style.zIndex = '3'; // Hawking on top layer
             hawkingImg.style.left = '54.8%';
             hawkingImg.style.bottom = '16.2%';
             hawkingImg.style.width = '23.4%';
@@ -438,7 +451,7 @@ class CameraSystem {
             console.log(`✓ Displaying Hawking at cam6`);
         }
         
-        // 显示 EP（如果已出场且在当前摄像头）
+        // Show EP (if spawned and on current cam)
         // console.log('🔍 EP Display Check:', {
         //     hasSpawned: this.game.enemyAI.epstein.hasSpawned,
         //     epLocation: epLocation,
@@ -449,7 +462,7 @@ class CameraSystem {
         // });
         
         if (this.game.enemyAI.epstein.hasSpawned && epLocation === currentCam && this.characterImages && this.characterImages[currentCam]) {
-            // 创建EP容器（用于包含EP图片和电眼）
+            // Create EP container (holds EP image and lightning eyes)
             const epContainer = document.createElement('div');
             epContainer.className = 'ep-container';
             epContainer.style.position = 'absolute';
@@ -470,7 +483,7 @@ class CameraSystem {
                 epContainer.style.transform = pos.transform || 'none';
             }
             
-            // EP图片
+            // EP image
             const epImg = document.createElement('img');
             epImg.src = this.characterImages[currentCam];
             epImg.style.position = 'relative';
@@ -479,7 +492,7 @@ class CameraSystem {
             epImg.style.display = 'block';
             epImg.className = 'visible ep-character';
             
-            // 应用明暗度
+            // Apply brightness
             const brightness = this.characterBrightness[currentCam] || 100;
             epImg.style.filter = `brightness(${brightness}%)`;
             
@@ -487,13 +500,13 @@ class CameraSystem {
             characterOverlay.appendChild(epContainer);
             console.log(`✓ Displaying EP at ${currentCam}`);
             
-            // Night 6: 渲染电眼特效（作为EP容器的子元素）
+            // Night 6: Render lightning eye effect (as child of EP container)
             if (this.game.state.currentNight === 6) {
                 this.renderLightningEyes(epContainer, currentCam);
             }
         }
         
-        // 显示 Trump（如果已出场且在当前摄像头，且不在爬行状态，且当前夜晚有Trump配置）
+        // Show Trump (if spawned, on current cam, not crawling, and trump config exists for this night)
         if (this.game.enemyAI.trump.hasSpawned && !this.game.enemyAI.trump.isCrawling && trumpLocation === currentCam && this.game.enemyAI.currentTrumpConfig) {
             const trumpImages = this.game.enemyAI.trumpImages;
             const trumpPositions = this.game.enemyAI.trumpPositions;
@@ -538,13 +551,13 @@ class CameraSystem {
         const grid = document.getElementById('camera-grid');
         grid.innerHTML = '';
         
-        // 创建地图容器
+        // Create map container
         const mapContainer = document.createElement('div');
         mapContainer.style.position = 'relative';
         mapContainer.style.width = '100%';
         mapContainer.style.height = '100%';
         
-        // 添加地图图片
+        // Add map image
         const mapImg = document.createElement('img');
         mapImg.src = 'assets/images/FNAE-Map-layout.png';
         mapImg.style.width = '100%';
@@ -552,7 +565,7 @@ class CameraSystem {
         mapImg.style.display = 'block';
         mapContainer.appendChild(mapImg);
         
-        // 添加 YOU 标记（玩家位置）
+        // Add YOU marker (player position)
         const youMarker = document.createElement('div');
         youMarker.style.position = 'absolute';
         youMarker.style.left = '7.0%';
@@ -572,7 +585,7 @@ class CameraSystem {
         youMarker.textContent = 'YOU';
         mapContainer.appendChild(youMarker);
         
-        // 定义每个摄像头在地图上的位置（百分比）
+        // Define each camera position on the map (percentage)
         const cameraPositions = [
             { cam: 1, x: 25.7, y: 84.3, width: 13.0, height: 8.0 },
             { cam: 2, x: 35.0, y: 56.6, width: 13.0, height: 8.0 },
@@ -587,7 +600,7 @@ class CameraSystem {
             { cam: 11, x: 72.9, y: 4.6, width: 13.0, height: 8.0 },
         ];
         
-        // 为每个摄像头创建可点击热区
+        // Create clickable hotspot for each camera
         cameraPositions.forEach(pos => {
             const hotspot = document.createElement('div');
             hotspot.className = 'camera-hotspot';
@@ -610,10 +623,10 @@ class CameraSystem {
             hotspot.style.borderRadius = '4px';
             hotspot.style.letterSpacing = '0.5px';
             
-            // 添加CAM文本
+            // Add CAM label
             hotspot.textContent = `CAM ${pos.cam}`;
             
-            // 当前选中的摄像头绿色闪烁
+            // Currently selected camera green flicker
             if (this.game.state.currentCam === `cam${pos.cam}`) {
                 hotspot.classList.add('camera-selected');
                 hotspot.style.border = 'none';
@@ -622,7 +635,7 @@ class CameraSystem {
                 hotspot.style.background = 'transparent';
             }
             
-            // 悬浮效果
+            // Hover effect
             hotspot.addEventListener('mouseenter', () => {
                 if (this.game.state.currentCam !== `cam${pos.cam}`) {
                     hotspot.style.background = 'rgba(255, 255, 255, 0.2)';
@@ -635,7 +648,7 @@ class CameraSystem {
                 }
             });
             
-            // 点击切换摄像头
+            // Click to switch camera
             hotspot.addEventListener('click', () => this.switchCamera(pos.cam));
             
             mapContainer.appendChild(hotspot);
@@ -645,7 +658,7 @@ class CameraSystem {
     }
 
     playAmbientSound() {
-        // 如果在冷却中，不能使用
+        // Cannot use while on cooldown
         if (this.soundButtonCooldown) {
             console.log('Sound button on cooldown');
             return;
@@ -653,81 +666,81 @@ class CameraSystem {
         
         const currentCam = this.game.state.currentCam;
         
-        // 检查EP是否移动了，如果移动了则重置所有位置的计数
+        // Check if EP moved; if so reset all location counts
         const currentEpLocation = this.game.enemyAI.getCurrentLocation();
         if (this.lastEpLocation !== currentEpLocation) {
             console.log(`EP moved from ${this.lastEpLocation} to ${currentEpLocation}, resetting all location counts`);
-            this.locationAttractCount = {}; // 重置所有位置计数
+            this.locationAttractCount = {}; // Reset all location counts
             this.lastEpLocation = currentEpLocation;
         }
         
-        // 交替播放 1.ogg 和 2.ogg
+        // Alternate between Crank1.ogg and Crank2.ogg
         const soundFile = this.currentSoundToggle ? '2.ogg' : '1.ogg';
         this.currentSoundToggle = !this.currentSoundToggle;
         
-        // 创建并播放音频
+        // Create and play audio
         const audio = new Audio(`assets/sounds/${soundFile}`);
-        audio.play().catch(e => console.log('音频播放失败:', e));
+        audio.play().catch(e => console.log('Audio play failed:', e));
         
-        // 检查当前位置是否已经用完2次
+        // Check if current location has been used 2 times
         let canAttract = true;
         if (this.locationAttractCount[currentCam] >= this.maxLocationAttractCount) {
             console.log(`Location ${currentCam} already used ${this.maxLocationAttractCount} times - wasting player's attempt`);
             canAttract = false;
         }
         
-        // 尝试吸引EP到当前摄像头位置（如果位置可用）
+        // Try to lure EP to current camera position (if available)
         let attracted = false;
         if (canAttract) {
             attracted = this.game.enemyAI.attractToSound(currentCam);
             
             if (attracted) {
-                // 吸引成功，播放过场动画
+                // Lure successful, play transition animation
                 this.playAttractionTransition();
                 
-                // 增加该位置的计数
+                // Increment location count
                 this.locationAttractCount[currentCam] = (this.locationAttractCount[currentCam] || 0) + 1;
                 console.log(`Epstein attracted to ${currentCam}! Count: ${this.locationAttractCount[currentCam]}/${this.maxLocationAttractCount}`);
                 
-                // 更新EP位置记录
+                // Update EP's last location record
                 this.lastEpLocation = currentCam;
             } else {
-                // 吸引失败（不邻近或其他原因），不给用户提示
+                // Lure failed (not adjacent or other reason), no user feedback
                 console.log('Attraction failed');
             }
         } else {
-            // 位置已用完2次，浪费玩家的尝试
+            // Location used up 2 times, wasted attempt
             console.log('Location maxed out - player wasted an attempt');
         }
         
-        // 增加使用次数（无论是否成功）
+        // Increment use count (regardless of success)
         this.soundButtonUseCount++;
         console.log(`Sound button used: ${this.soundButtonUseCount}/${this.maxSoundUses}`);
         
-        // 检查是否达到最大使用次数
+        // Check if max uses reached
         if (this.soundButtonUseCount >= this.maxSoundUses) {
             console.log('Sound button overused! Camera failure!');
-            this.soundButtonUseCount = 0; // 重置计数
+            this.soundButtonUseCount = 0; // Reset count
             
-            // 如果正在播放吸引动画，立即停止
+            // If lure animation is playing, stop it immediately
             if (this.cameraPanel.classList.contains('transitioning')) {
                 this.stopStatic();
                 this.cameraPanel.classList.remove('transitioning');
             }
             
-            // 触发摄像头故障
+            // Trigger camera failure
             this.game.enemyAI.triggerCameraFailure();
         }
         
-        // 开始冷却
+        // Start cooldown
         this.soundButtonCooldown = true;
         this.playSoundBtn.style.opacity = '0.5';
         this.playSoundBtn.style.cursor = 'not-allowed';
         
-        // 添加加载动画
+        // Add loading animation
         this.startCooldownAnimation();
         
-        // 8秒后解除冷却
+        // End cooldown after 8 seconds
         setTimeout(() => {
             this.soundButtonCooldown = false;
             this.playSoundBtn.style.opacity = '1';
@@ -736,7 +749,7 @@ class CameraSystem {
         }, this.cooldownTime);
     }
     
-    // 开始冷却动画
+    // Start cooldown动画
     startCooldownAnimation() {
         let dotCount = 0;
         this.cooldownInterval = setInterval(() => {
@@ -746,7 +759,7 @@ class CameraSystem {
         }, 500);
     }
     
-    // 停止冷却动画
+    // Stop cooldown animation
     stopCooldownAnimation() {
         if (this.cooldownInterval) {
             clearInterval(this.cooldownInterval);
@@ -755,42 +768,42 @@ class CameraSystem {
         this.playSoundBtn.textContent = 'PLAY SOUND';
     }
     
-    // 吸引成功的过场动画
+    // Lure success transition animation
     playAttractionTransition() {
         console.log('Playing attraction transition...');
         
-        // 添加过场状态，隐藏背景图片和地图
+        // Add transition state, hide background and map
         this.cameraPanel.classList.add('transitioning');
         
-        // 隐藏地图
+        // Hide map
         const cameraGrid = document.getElementById('camera-grid');
         if (cameraGrid) {
             cameraGrid.style.display = 'none';
         }
         
-        // 隐藏角色
+        // Hide characters
         const characterOverlay = document.getElementById('character-overlay');
         if (characterOverlay) {
             characterOverlay.style.display = 'none';
         }
         
-        // 暂时降低循环静态音的音量
+        // Temporarily lower looping static volume
         this.game.assets.setSoundVolume('staticLoop', 0.1);
         
-        // 播放正常音量的静态音效
+        // Play static at normal volume
         this.game.assets.playSound('static', false, 1.0);
         
-        // 1000ms 后停止静态音效
+        // Stop static sound after 1000ms
         setTimeout(() => {
             this.game.assets.stopSound('static');
         }, 1000);
         
-        // 显示雪花效果
+        // Show static effect
         this.startStatic();
         
-        // 500ms 后更新显示
+        // Update display after 500ms
         setTimeout(() => {
-            // 如果摄像头已经故障，停止动画并显示故障效果
+            // If camera already failed, stop animation and show failure
             if (this.game.state.cameraFailed) {
                 console.log('Camera failed during attraction transition, showing failure effect');
                 this.showCameraFailure();
@@ -799,9 +812,9 @@ class CameraSystem {
             
             this.updateCharacterDisplay();
             
-            // 再过 500ms 淡出雪花，恢复背景
+            // After another 500ms, fade out static and restore background
             setTimeout(() => {
-                // 如果摄像头已经故障，停止动画并显示故障效果
+                // If camera already failed, stop animation and show failure
                 if (this.game.state.cameraFailed) {
                     console.log('Camera failed during attraction transition, showing failure effect');
                     this.showCameraFailure();
@@ -811,69 +824,69 @@ class CameraSystem {
                 this.stopStatic();
                 this.cameraPanel.classList.remove('transitioning');
                 
-                // 显示地图
+                // Show map
                 if (cameraGrid) {
                     cameraGrid.style.display = 'block';
                 }
                 
-                // 显示角色
+                // Show characters
                 if (characterOverlay) {
                     characterOverlay.style.display = 'block';
                 }
                 
-                // 恢复循环静态音的音量
+                // Restore looping static volume
                 this.game.assets.setSoundVolume('staticLoop', 0.3);
             }, 500);
         }, 500);
     }
     
-    // 重置声音按钮计数（摄像头重启后调用）
+    // Reset sound button count (called after camera restart)
     resetSoundButtonCount() {
         this.soundButtonUseCount = 0;
     }
     
-    // EP移动时的过场动画
+    // Transition animation when EP moves
     playMovementTransition() {
         console.log('Playing movement transition...');
         
-        // 如果摄像头已经故障，不播放动画
+        // If camera already failed, skip animation
         if (this.game.state.cameraFailed) {
             console.log('Camera already failed, skipping movement transition');
             return;
         }
         
-        // 添加过场状态
+        // Add transition state
         this.cameraPanel.classList.add('transitioning');
         
-        // 隐藏地图
+        // Hide map
         const cameraGrid = document.getElementById('camera-grid');
         if (cameraGrid) {
             cameraGrid.style.display = 'none';
         }
         
-        // 隐藏角色
+        // Hide characters
         const characterOverlay = document.getElementById('character-overlay');
         if (characterOverlay) {
             characterOverlay.style.display = 'none';
         }
         
-        // 暂时降低循环静态音的音量
+        // Temporarily lower looping static volume
         this.game.assets.setSoundVolume('staticLoop', 0.1);
         
-        // 播放正常音量的静态音效
+        // Play static at normal volume
         this.game.assets.playSound('static', false, 1.0);
         
-        // 1000ms 后停止静态音效
+        // Stop static sound after 1000ms
         setTimeout(() => {
             this.game.assets.stopSound('static');
         }, 1000);
         
-        // 显示雪花效果
+        // Show static effect
         this.startStatic();
         
-        // 500ms 后更新显示
+        // Update display after 500ms
         setTimeout(() => {
-            // 如果摄像头已经故障，停止动画并显示故障效果
+            // If camera already failed, stop animation and show failure
             if (this.game.state.cameraFailed) {
                 console.log('Camera failed during movement transition, showing failure effect');
                 this.showCameraFailure();
@@ -882,9 +895,9 @@ class CameraSystem {
             
             this.updateCharacterDisplay();
             
-            // 再过 500ms 淡出雪花，恢复背景
+            // After another 500ms, fade out static and restore background
             setTimeout(() => {
-                // 如果摄像头已经故障，停止动画并显示故障效果
+                // If camera already failed, stop animation and show failure
                 if (this.game.state.cameraFailed) {
                     console.log('Camera failed during movement transition, showing failure effect');
                     this.showCameraFailure();
@@ -894,56 +907,56 @@ class CameraSystem {
                 this.stopStatic();
                 this.cameraPanel.classList.remove('transitioning');
                 
-                // 显示地图
+                // Show map
                 if (cameraGrid) {
                     cameraGrid.style.display = 'block';
                 }
                 
-                // 显示角色
+                // Show characters
                 if (characterOverlay) {
                     characterOverlay.style.display = 'block';
                 }
                 
-                // 恢复循环静态音的音量
+                // Restore looping static volume
                 this.game.assets.setSoundVolume('staticLoop', 0.3);
             }, 500);
         }, 500);
     }
     
-    // 电击霍金
+    // Shock Hawking
     shockHawking() {
-        // 立即播放音效
+        // Play sound immediately
         this.game.assets.playSound('hawking_shock', false, 1.0);
         
-        // 显示雪花过场动画
+        // Show static transition animation
         this.cameraPanel.classList.add('transitioning');
         
-        // 播放雪花视频
+        // Play static video
         if (this.staticVideo) {
             this.staticVideo.classList.add('active');
             this.staticVideo.currentTime = 0;
             this.staticVideo.play().catch(e => console.log('Video playback failed:', e));
         }
         
-        // 1秒后执行电击并恢复画面
+        // After 1 second, execute shock and restore view
         setTimeout(() => {
             if (this.game.enemyAI && this.game.enemyAI.shockHawking()) {
                 console.log('Hawking shocked successfully!');
             }
             
-            // 停止雪花视频
+            // Stop static video
             if (this.staticVideo) {
                 this.staticVideo.classList.remove('active');
                 this.staticVideo.pause();
             }
             
-            // 恢复摄像头画面
+            // Restore camera view
             this.cameraPanel.classList.remove('transitioning');
             this.updateView();
         }, 1000);
     }
     
-    // 更新电击按钮显示（Night 3-5 和 Custom Night 中 Hawking 激活时显示）
+    // Update shock button display（Night 3-5 和 Custom Night 中 Hawking 激活时显示）
     updateShockButtonVisibility() {
         if (this.shockHawkingBtn) {
             const currentCam = this.game.state.currentCam;

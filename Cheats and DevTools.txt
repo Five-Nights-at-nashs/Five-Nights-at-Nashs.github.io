@@ -20,6 +20,8 @@ localStorage.setItem('night6Completed', 'true'); game.updateContinueButton();  /
 
 == EASTER EGGS ==
 game.showGoldenStephen();   // Trigger Ed Bensinger
+game.resetCodyEasterEgg()  // resets so it can trigger again naturally
+game.forceCodyEasterEgg()  // triggers it immediately right now
 
 == ENEMY TELEPORT ==
 game.enemyAI.epstein.currentLocation = 'cam1';   // Teleport Nash to a cam (replace cam1 with any cam)

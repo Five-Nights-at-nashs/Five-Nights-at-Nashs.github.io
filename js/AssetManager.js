@@ -1,21 +1,21 @@
-// 资源管理器
+// Asset manager
 class AssetManager {
     constructor() {
         this.images = {};
         this.sounds = {};
         this.loaded = false;
         
-        // 分类音量设置
+        // Volume settings by category
         this.volumeSettings = this.loadVolumeSettings();
     }
     
-    // 从 localStorage 加载音量设置
+    // Load volume settings from localStorage
     loadVolumeSettings() {
         const saved = localStorage.getItem('fnae_volume_settings');
         if (saved) {
             return JSON.parse(saved);
         }
-        // 默认音量设置
+        // Default volume settings
         return {
             master: 0.7,
             gameBg: 0.7,
@@ -25,32 +25,32 @@ class AssetManager {
         };
     }
     
-    // 保存音量设置
+    // Save volume settings
     saveVolumeSettings() {
         localStorage.setItem('fnae_volume_settings', JSON.stringify(this.volumeSettings));
     }
     
-    // 设置特定类型的音量
+    // Set volume for a specific category
     setVolume(type, volume) {
         this.volumeSettings[type] = Math.max(0, Math.min(1, volume));
         this.saveVolumeSettings();
     }
     
-    // 获取特定类型的音量
+    // Get volume for a specific category
     getVolume(type) {
         return this.volumeSettings[type] || 0.7;
     }
     
-    // 获取所有音量设置
+    // Get all volume settings
     getAllVolumes() {
         return this.volumeSettings;
     }
 
     async loadAssets() {
-        // 获取当前脚本的基础路径
+        // Get base path for assets
         const basePath = this.getBasePath();
         
-        // 从 Unity 提取的资源
+        // Image assets
         const imagePaths = {
             office: `${basePath}assets/images/original.png`,
             cam1: `${basePath}assets/images/Cam1.png`,
@@ -65,10 +65,11 @@ class AssetManager {
             cam10: `${basePath}assets/images/Cam10.png`,
             cam11: `${basePath}assets/images/Cam11.png`,
             goldenstephenscare: `${basePath}assets/images/goldenstephen.png`,
-            jumpscare: `${basePath}assets/images/jump.png`, // EP跳杀图片
-            trumpJumpscare: `${basePath}assets/images/jumptrump.png`, // Trump跳杀图片
-            hawkingJumpscare: `${basePath}assets/images/scaryhawking.png`, // Hawking跳杀图片
+            jumpscare: `${basePath}assets/images/jump.png`, // EP jumpscare image
+            trumpJumpscare: `${basePath}assets/images/jumptrump.png`, // Trump jumpscare image
+            hawkingJumpscare: `${basePath}assets/images/scaryhawking.png`, // Hawking jumpscare image
             mrstephen: `${basePath}assets/images/mrstephen.png`, // Hawking cam6 display
+            cody: `${basePath}assets/images/cody.png`, // Cody easter egg
         };
 
         const soundPaths = {
@@ -78,7 +79,7 @@ class AssetManager {
             vents: `${basePath}assets/sounds/vents.ogg`,
             ventCrawling: `${basePath}assets/sounds/vent-crawling.mp3`,
             jumpscare: `${basePath}assets/sounds/jumpcare.ogg`,
-            hawkingJumpscare: `${basePath}assets/sounds/stephenjumpscare.ogg`, // Hawking跳杀音效
+            hawkingJumpscare: `${basePath}assets/sounds/stephenjumpscare.ogg`, // Hawking jumpscare sound
             blip: `${basePath}assets/sounds/Blip.ogg`,
             win: `${basePath}assets/sounds/winmusic.ogg`,
             chimes: `${basePath}assets/sounds/chimes.ogg`,
@@ -86,10 +87,11 @@ class AssetManager {
             crank2: `${basePath}assets/sounds/Crank2.ogg`,
             ekg: `${basePath}assets/sounds/ekg.wav`,
             hawking_shock: `${basePath}assets/sounds/hawking_shock.wav`,
-            goldenstephenscare: `${basePath}assets/sounds/goldenstephenscare.ogg`, // Golden 霍金音效
+            goldenstephenscare: `${basePath}assets/sounds/goldenstephenscare.ogg`, // Golden Hawking sound
+            why: `${basePath}assets/sounds/why.wav`, // Cody easter egg sound
         };
 
-        // 加载图片
+        // Load images
         for (const [key, path] of Object.entries(imagePaths)) {
             try {
                 this.images[key] = await this.loadImage(path);
@@ -98,7 +100,7 @@ class AssetManager {
             }
         }
 
-        // 加载音频
+        // Load audio
         for (const [key, path] of Object.entries(soundPaths)) {
             try {
                 this.sounds[key] = new Audio(path);
@@ -111,12 +113,12 @@ class AssetManager {
     }
 
     getBasePath() {
-        // 检查是否在 iframe 中
+        // Check if running in iframe
         const currentPath = window.location.pathname;
         if (currentPath.includes('/FNAE-HTML5-1.2.2-fix/')) {
             return '/FNAE-HTML5-1.2.2-fix/';
         }
-        // 本地开发环境
+        // Local dev environment
         return './';
     }
 
@@ -133,7 +135,7 @@ class AssetManager {
         if (this.sounds[key]) {
             this.sounds[key].loop = loop;
             
-            // 根据音效类型应用对应的音量
+            // Apply volume based on sound category
             let categoryVolume = this.volumeSettings.master;
             
             if (key === 'music' || key === 'music3') {
@@ -143,7 +145,7 @@ class AssetManager {
             } else if (key === 'ventCrawling') {
                 categoryVolume *= this.volumeSettings.ventCrawling;
             } else if (key === 'vents' || key === 'ambience' || key === 'staticLoop' || key === 'static' || key === 'blip' || key === 'Blip') {
-                // 游戏背景音乐：包括通风口声音、静态噪声、摄像机切换声等
+                // Game background sounds: vents, static noise, camera blips, etc.
                 categoryVolume *= this.volumeSettings.gameBg;
             }
             

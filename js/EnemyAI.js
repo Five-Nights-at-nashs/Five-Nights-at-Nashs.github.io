@@ -1,22 +1,22 @@
-// 敌人AI系统 - 基于FNAF机制
+// Enemy AI system - based on FNAF mechanics
 class EnemyAI {
     constructor(game) {
         this.game = game;
         
-        // ==================== AI配置系统 ====================
-        // Epstein AI配置（按夜数）
+        // ==================== AI CONFIG SYSTEM ====================
+        // Epstein AI config (by night)
         this.epsteinConfig = {
             1: {
-                aiLevel: 12,              // AI等级 (0-20)，12/20 = 60%移动概率
-                movementInterval: [9000, 10000],  // 移动检查间隔（毫秒）[最小值, 最大值]
-                movementDuration: 1000,   // 移动动画时长（毫秒）
-                spawnDelay: 120000,        // 出场延迟（毫秒）
-                movementProbability: {    // 移动方向概率
-                    forward: 0.8,         // 前进概率 100%
-                    lateral: 0.1,         // 平移概率 0%（当前不支持）
-                    backward: 0.1         // 后退概率 0%
+                aiLevel: 12,              // AI level (0-20), 12/20 = 60% move chance
+                movementInterval: [9000, 10000],  // Movement check interval (ms) [min, max]
+                movementDuration: 1000,   // Movement animation duration (ms)
+                spawnDelay: 120000,        // Spawn delay (ms)
+                movementProbability: {    // Movement direction probability
+                    forward: 0.8,         // Forward probability
+                    lateral: 0.1,         // Lateral probability (not currently supported)
+                    backward: 0.1         // Backward probability
                 },
-                soundLureResistance: 0  // 对sound吸引的抵抗概率（0-1）
+                soundLureResistance: 0  // Resistance to sound lure (0-1)
             },
             2: {
                 aiLevel: 12,
@@ -40,11 +40,11 @@ class EnemyAI {
                     lateral: 0.2,
                     backward: 0
                 },
-                soundLureResistance: 0.1  // Night 3开始：15%概率抵抗sound吸引
+                soundLureResistance: 0.1  // Night 3+: 15% chance to resist sound lure
             },
             4: {
                 aiLevel: 12,
-                movementInterval: [9000, 10000],    // Night 4：9-10秒间隔
+                movementInterval: [9000, 10000],    // Night 4: 9-10 second interval
                 movementDuration: 1000,
                 spawnDelay: 0,
                 movementProbability: {
@@ -56,7 +56,7 @@ class EnemyAI {
             },
             5: {
                 aiLevel: 12,
-                movementInterval: [9000, 10000],    // Night 5：9-10秒间隔
+                movementInterval: [9000, 10000],    // Night 5: 9-10 second interval
                 movementDuration: 1000,
                 spawnDelay: 0,
                 movementProbability: {
@@ -68,53 +68,53 @@ class EnemyAI {
             },
             6: {
                 aiLevel: 12,
-                movementInterval: [6500, 7500],  // 6.5-7.5秒间隔
+                movementInterval: [6500, 7500],  // 6.5-7.5 second interval
                 movementDuration: 1000,
-                spawnDelay: 0,  // Night 6立即出场
+                spawnDelay: 0,  // Night 6: spawn immediately
                 movementProbability: {
-                    forward: 0.9,  // 90%前进
-                    lateral: 0.1,  // 10%平移
-                    backward: 0.0  // 不后退
+                    forward: 0.9,  // 90% forward
+                    lateral: 0.1,  // 10% lateral
+                    backward: 0.0  // 0% backward
                 },
                 soundLureResistance: 0.15
             }
         };
         
-        // Trump AI配置（按夜数，Night 2开始）
+        // Trump AI config (by night, starts Night 2)
         this.trumpConfig = {
             2: {
-                aiLevel: 10,              // AI等级，10/20 = 50%移动概率
-                movementInterval: [8000, 9000],  // 8-9秒随机（比EP快一点）
-                movementDuration: 1000,   // 移动动画时长（毫秒）
-                spawnDelay: 0,            // 出场延迟（毫秒），开局就出场
-                movementProbability: {    // 移动方向概率
-                    forward: 0.9,         // 90% 前进（更激进）
-                    lateral: 0.1,         // 10% 平移
-                    backward: 0.0         // 0% 后退
+                aiLevel: 10,              // AI level, 10/20 = 50% move chance
+                movementInterval: [8000, 9000],  // 8-9 second random (slightly faster than EP)
+                movementDuration: 1000,   // Movement animation duration (ms)
+                spawnDelay: 0,            // Spawn delay (ms), spawns immediately
+                movementProbability: {    // Movement direction probability
+                    forward: 0.9,         // 90% forward (more aggressive)
+                    lateral: 0.1,         // 10% lateral
+                    backward: 0.0         // 0% backward
                 },
-                ventCrawling: {           // 通风管爬行配置
-                    cam1Probability: 1.0, // 在cam1时爬行概率 100%
-                    cam2Probability: 0.5, // 在cam2时爬行概率 50%
-                    soundDelay: 5000,     // 开始爬行后多久播放音效（毫秒）
-                    soundDuration: 10000, // 爬行音效持续时长（毫秒）
-                    totalDuration: 20000, // 爬行总时长（毫秒）
-                    retreatDelay: 2000,   // 被阻止后多久播放撤退音效（毫秒）
-                    retreatSoundDuration: 3000 // 撤退音效持续时长（毫秒）
+                ventCrawling: {           // Vent crawling config
+                    cam1Probability: 1.0, // Crawl probability at cam1: 100%
+                    cam2Probability: 0.5, // Crawl probability at cam2: 50%
+                    soundDelay: 5000,     // Delay before playing crawl sound (ms)
+                    soundDuration: 10000, // Crawl sound duration (ms)
+                    totalDuration: 20000, // Total crawl duration (ms)
+                    retreatDelay: 2000,   // Delay before retreat sound when blocked (ms)
+                    retreatSoundDuration: 3000 // Retreat sound duration (ms)
                 }
             },
             3: {
-                aiLevel: 11,              // 降低到55%移动概率（从65%）
-                movementInterval: [9000, 10000],  // 改为9-10秒（从8-9秒）
+                aiLevel: 11,              // Reduced to 55% move chance (from 65%)
+                movementInterval: [9000, 10000],  // Changed to 9-10 seconds (from 8-9)
                 movementDuration: 1000,
                 spawnDelay: 0,
                 movementProbability: {
-                    forward: 0.75,        // 降低到75%前进（从80%）
-                    lateral: 0.25,        // 增加到25%平移
+                    forward: 0.75,        // Reduced to 75% forward (from 80%)
+                    lateral: 0.25,        // Increased to 25% lateral
                     backward: 0.0
                 },
                 ventCrawling: {
                     cam1Probability: 1.0,
-                    cam2Probability: 0.4, // 降低到40%（从50%）
+                    cam2Probability: 0.4, // Reduced to 40% (from 50%)
                     soundDelay: 5000,
                     soundDuration: 10000,
                     totalDuration: 20000,
@@ -124,12 +124,12 @@ class EnemyAI {
             },
             4: {
                 aiLevel: 13,
-                movementInterval: [8000, 9000],    // 8-9秒随机（比EP快）
+                movementInterval: [8000, 9000],    // 8-9 second random (faster than EP)
                 movementDuration: 1000,
                 spawnDelay: 0,
                 movementProbability: {
-                    forward: 0.8,         // 80% 前进
-                    lateral: 0.2,         // 20% 平移
+                    forward: 0.8,         // 80% forward
+                    lateral: 0.2,         // 20% lateral
                     backward: 0.0
                 },
                 ventCrawling: {
@@ -144,12 +144,12 @@ class EnemyAI {
             },
             5: {
                 aiLevel: 13,
-                movementInterval: [8000, 9000],    // 8-9秒随机（比EP快）
+                movementInterval: [8000, 9000],    // 8-9 second random (faster than EP)
                 movementDuration: 1000,
                 spawnDelay: 0,
                 movementProbability: {
-                    forward: 0.8,         // 80% 前进
-                    lateral: 0.2,         // 20% 平移
+                    forward: 0.8,         // 80% forward
+                    lateral: 0.2,         // 20% lateral
                     backward: 0.0
                 },
                 ventCrawling: {
@@ -164,44 +164,44 @@ class EnemyAI {
             }
         };
         
-        // 当前配置（运行时使用）
+        // Current config (used at runtime)
         this.currentEpsteinConfig = null;
         this.currentTrumpConfig = null;
         
-        // 爱泼斯坦的状态
+        // Epstein's state
         this.epstein = {
-            currentLocation: 'cam11', // 起始位置（最远）
-            aiLevel: 0, // AI等级 (0-20)
+            currentLocation: 'cam11', // Starting location (furthest)
+            aiLevel: 0, // AI level (0-20)
             movementTimer: null,
-            movementInterval: 12000, // 移动检查间隔
-            hasMovedOnce: false, // 是否已经移动过一次
-            hasSpawned: false, // 是否已经出场
+            movementInterval: 12000, // Movement check interval
+            hasMovedOnce: false, // Whether has moved at least once
+            hasSpawned: false, // Whether has spawned
         };
         
-        // 特朗普的状态
+        // Trump's state
         this.trump = {
-            currentLocation: 'cam10', // 起始位置
-            aiLevel: 0, // AI等级 (0-20)
+            currentLocation: 'cam10', // Starting location
+            aiLevel: 0, // AI level (0-20)
             movementTimer: null,
-            movementInterval: 10000, // 移动检查间隔
-            hasSpawned: false, // 是否已经出场
-            isCrawling: false, // 是否正在爬行
-            crawlingTimer: null, // 爬行计时器
-            crawlingFrom: null, // 从哪个摄像头开始爬行（cam1或cam2）
-            retreatTimer: null, // 撤退计时器
+            movementInterval: 10000, // Movement check interval
+            hasSpawned: false, // Whether has spawned
+            isCrawling: false, // Whether currently crawling
+            crawlingTimer: null, // Crawl timer
+            crawlingFrom: null, // Which cam crawling started from (cam1 or cam2)
+            retreatTimer: null, // Retreat timer
         };
         
-        // 霍金的状态（第3关开始）
+        // Hawking's state (starts Night 3)
         this.hawking = {
-            active: false, // 是否激活
-            location: 'cam6', // 固定在cam6
-            timer: null, // 计时器
-            warningLevel: 0, // 0=无警告, 1=黄色警告, 2=红色警告
-            warningTimer: null, // 警告计时器
-            attackTimer: null, // 攻击计时器
+            active: false, // Whether active
+            location: 'cam6', // Fixed at cam6
+            timer: null, // Timer
+            warningLevel: 0, // 0=no warning, 1=yellow warning, 2=red warning
+            warningTimer: null, // Warning timer
+            attackTimer: null, // Attack timer
         };
         
-        // 每个摄像头使用的角色图片（根据距离办公室远近）
+        // Character images per camera (based on distance from office)
         this.characterImages = {
             'cam11': 'assets/images/enemyep1.png',
             'cam10': 'assets/images/ep1.png',
@@ -216,7 +216,7 @@ class EnemyAI {
             'cam2': 'assets/images/enemyep1.png',
         };
         
-        // Night 6 专用图片（带电眼）
+        // Night 6 exclusive images (with lightning eyes)
         this.characterImagesNight6 = {
             'cam11': 'assets/images/enemyep1_night6.png',
             'cam10': 'assets/images/ep1_night6.png',
@@ -231,7 +231,7 @@ class EnemyAI {
             'cam2': 'assets/images/enemyep1_night6.png',
         };
         
-        // 特朗普的图片配置（使用绝对路径）
+        // Trump image config
         this.trumpImages = {
             'cam10': 'assets/images/trump5.png',
             'cam11': 'assets/images/trump3.png',
@@ -246,50 +246,50 @@ class EnemyAI {
             'cam4': 'assets/images/trump3.png',
         };
         
-        // 定义移动路径图（根据地图连接关系，只能向前移动）
-        // 每个位置的步长（距离办公室的最短路径长度）- 使用BFS计算
+        // Define movement path graph (map connections, forward only)
+        // Steps per location (shortest path to office) - calculated with BFS
         // Office ← Cam1 ← Cam3 ← ...
         this.locationDepth = {
-            'office': 0,  // 终点
-            'cam1': 1,    // Cam1 → Office (1步)
-            'cam2': 2,    // Cam2 → Cam1 → Office (2步) ✅ 修正
-            'cam3': 2,    // Cam3 → Cam1 → Office (2步)
-            'cam6': 3,    // Cam6 → Cam3 → Cam1 → Office (3步)
-            'cam4': 3,    // Cam4 → Cam3 → Cam1 → Office (3步)
-            'cam5': 4,    // Cam5 → Cam6 → Cam3 → Cam1 → Office (4步)
-            'cam7': 4,    // Cam7 → Cam4 → Cam3 → Cam1 → Office (4步)
-            'cam8': 5,    // Cam8 → Cam5 → Cam6 → Cam3 → Cam1 → Office (5步)
-            'cam11': 5,   // Cam11 → Cam7 → Cam4 → Cam3 → Cam1 → Office (5步)
-            'cam9': 5,    // Cam9 → Cam7 → Cam4 → Cam3 → Cam1 → Office (5步)
-            'cam10': 6,   // Cam10 → Cam9 → Cam7 → Cam4 → Cam3 → Cam1 → Office (6步)
+            'office': 0,  // Destination
+            'cam1': 1,    // Cam1 → Office (1 step)
+            'cam2': 2,    // Cam2 → Cam1 → Office (2 steps)
+            'cam3': 2,    // Cam3 → Cam1 → Office (2 steps)
+            'cam6': 3,    // Cam6 → Cam3 → Cam1 → Office (3 steps)
+            'cam4': 3,    // Cam4 → Cam3 → Cam1 → Office (3 steps)
+            'cam5': 4,    // Cam5 → Cam6 → Cam3 → Cam1 → Office (4 steps)
+            'cam7': 4,    // Cam7 → Cam4 → Cam3 → Cam1 → Office (4 steps)
+            'cam8': 5,    // Cam8 → Cam5 → Cam6 → Cam3 → Cam1 → Office (5 steps)
+            'cam11': 5,   // Cam11 → Cam7 → Cam4 → Cam3 → Cam1 → Office (5 steps)
+            'cam9': 5,    // Cam9 → Cam7 → Cam4 → Cam3 → Cam1 → Office (5 steps)
+            'cam10': 6,   // Cam10 → Cam9 → Cam7 → Cam4 → Cam3 → Cam1 → Office (6 steps)
         };
         
-        // 特朗普的步长配置（使用和EP相同的步长，一步一步走）
+        // Trump step config (same step distances as EP, moves one step at a time)
         this.trumpLocationDepth = {
-            'office': 0,  // 终点
-            'cam1': 1,    // Cam1 → Office (1步)
-            'cam2': 2,    // Cam2 → Cam1 → Office (2步)
-            'cam3': 2,    // Cam3 → Cam1 → Office (2步)
-            'cam6': 3,    // Cam6 → Cam3 → Cam1 → Office (3步)
-            'cam4': 3,    // Cam4 → Cam3 → Cam1 → Office (3步)
-            'cam5': 4,    // Cam5 → Cam6 → Cam3 → Cam1 → Office (4步)
-            'cam7': 4,    // Cam7 → Cam4 → Cam3 → Cam1 → Office (4步)
-            'cam8': 5,    // Cam8 → Cam5 → Cam6 → Cam3 → Cam1 → Office (5步)
-            'cam11': 5,   // Cam11 → Cam7 → Cam4 → Cam3 → Cam1 → Office (5步)
-            'cam9': 5,    // Cam9 → Cam7 → Cam4 → Cam3 → Cam1 → Office (5步)
-            'cam10': 6,   // Cam10 → Cam9 → Cam7 → Cam4 → Cam3 → Cam1 → Office (6步)
+            'office': 0,  // Destination
+            'cam1': 1,    // Cam1 → Office (1 step)
+            'cam2': 2,    // Cam2 → Cam1 → Office (2 steps)
+            'cam3': 2,    // Cam3 → Cam1 → Office (2 steps)
+            'cam6': 3,    // Cam6 → Cam3 → Cam1 → Office (3 steps)
+            'cam4': 3,    // Cam4 → Cam3 → Cam1 → Office (3 steps)
+            'cam5': 4,    // Cam5 → Cam6 → Cam3 → Cam1 → Office (4 steps)
+            'cam7': 4,    // Cam7 → Cam4 → Cam3 → Cam1 → Office (4 steps)
+            'cam8': 5,    // Cam8 → Cam5 → Cam6 → Cam3 → Cam1 → Office (5 steps)
+            'cam11': 5,   // Cam11 → Cam7 → Cam4 → Cam3 → Cam1 → Office (5 steps)
+            'cam9': 5,    // Cam9 → Cam7 → Cam4 → Cam3 → Cam1 → Office (5 steps)
+            'cam10': 6,   // Cam10 → Cam9 → Cam7 → Cam4 → Cam3 → Cam1 → Office (6 steps)
         };
         
-        // 定义移动路径图（只能向办公室方向移动，不能后退）
+        // Define movement path graph (toward office only, no backtracking)
         this.movementPaths = {
-            'cam11': ['cam7', 'cam8'], // Cam11只连接Cam7和Cam8
+            'cam11': ['cam7', 'cam8'], // Cam11 connects to Cam7 and Cam8
             'cam9': ['cam7', 'cam10'],
-            'cam10': ['cam9'], // 死胡同，只能去cam9
+            'cam10': ['cam9'], // Dead end, can only go to cam9
             'cam8': ['cam7', 'cam5'],
             'cam7': ['cam4'],
-            'cam4': ['cam2', 'cam3'], // 修正：添加cam3
+            'cam4': ['cam2', 'cam3'],
             'cam5': ['cam4', 'cam6'],
-            'cam2': ['cam3', 'cam1'], // 修正：添加cam1
+            'cam2': ['cam3', 'cam1'],
             'cam3': ['cam1', 'cam6'],
             'cam6': ['cam3'],
             'cam1': ['office'], // 大门，只能进办公室
@@ -730,6 +730,9 @@ class EnemyAI {
 
     // 检查是否移动（FNAF机制）
     checkMovement() {
+        // Stop if game is no longer running
+        if (!this.game.state.isGameRunning) return;
+
         // 如果还未出场，不移动
         if (!this.epstein.hasSpawned) return;
         
@@ -750,6 +753,9 @@ class EnemyAI {
     
     // 检查Trump是否移动
     checkTrumpMovement() {
+        // Stop if game is no longer running
+        if (!this.game.state.isGameRunning) return;
+
         // 如果还未出场，不移动
         if (!this.trump.hasSpawned) return;
         
@@ -1112,6 +1118,7 @@ class EnemyAI {
             this.game.assets.stopSound('ventCrawling');
             
             // 触发跳杀
+            if (!this.game.state.isGameRunning) return;
             this.triggerJumpscare('trump');
         }, config.totalDuration);
     }
@@ -1261,7 +1268,7 @@ class EnemyAI {
         return epAttracted || trumpAttracted;
     }
     
-    // 触发摄像头故障
+    // Trigger camera failure
     triggerCameraFailure() {
         console.log('Camera system failure!');
         this.game.state.cameraFailed = true;
@@ -1286,6 +1293,7 @@ class EnemyAI {
 
     // 触发跳杀
     triggerJumpscare(enemy = 'epstein') {
+        if (!this.game.state.isGameRunning) return; // prevent firing after game ended
         console.log(`JUMPSCARE by ${enemy}!`);
         this.stop();
         
@@ -1636,6 +1644,7 @@ class EnemyAI {
         
         // 4秒后跳杀
         this.hawking.attackTimer = setTimeout(() => {
+            if (!this.game.state.isGameRunning) return;
             this.triggerJumpscare('hawking');
         }, 4000);
     }
@@ -1761,7 +1770,7 @@ class EnemyAI {
         }, 1000);
     }
     
-    // 电击霍金（玩家点击按钮）
+    // Shock Hawking（玩家点击按钮）
     shockHawking() {
         if (!this.hawking.active) {
             console.log('Hawking is not active');

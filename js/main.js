@@ -1,108 +1,106 @@
-// 游戏入口 - 初始化所有模块
+// Game entry point - initializes all modules
 let game;
 let staticNoise;
 
-// 预加载进度跟踪
+// Preload progress tracking
 let loadedAssets = 0;
 let totalAssets = 0;
 
-// 禁用浏览器默认行为，提升游戏体验
+// Disable browser defaults to improve game experience
 function disableBrowserDefaults() {
-    // 禁用右键菜单
+    // Disable right-click menu
     document.addEventListener('contextmenu', (e) => {
         e.preventDefault();
         return false;
     }, { capture: true });
     
-    // 禁用拖拽
+    // Disable drag
     document.addEventListener('dragstart', (e) => {
         e.preventDefault();
         return false;
     }, { capture: true });
     
-    // 禁用选择文本（双击、长按等）
+    // Disable text selection (double click, long press, etc.)
     document.addEventListener('selectstart', (e) => {
         e.preventDefault();
         return false;
     }, { capture: true });
     
-    // 禁用复制
+    // Disable copy
     document.addEventListener('copy', (e) => {
         e.preventDefault();
         return false;
     }, { capture: true });
     
-    // 禁用剪切
+    // Disable cut
     document.addEventListener('cut', (e) => {
         e.preventDefault();
         return false;
     }, { capture: true });
     
-    // 禁用某些快捷键
+    // Disable certain keyboard shortcuts
     document.addEventListener('keydown', (e) => {
-        // 禁用 Ctrl+A (全选)
+        // Disable Ctrl+A (select all)
         if (e.ctrlKey && e.key === 'a') {
             e.preventDefault();
             return false;
         }
-        // 禁用 Ctrl+C (复制)
+        // Disable Ctrl+C (copy)
         if (e.ctrlKey && e.key === 'c') {
             e.preventDefault();
             return false;
         }
-        // 禁用 Ctrl+X (剪切)
+        // Disable Ctrl+X (cut)
         if (e.ctrlKey && e.key === 'x') {
             e.preventDefault();
             return false;
         }
-        // 禁用 Ctrl+S (保存)
+        // Disable Ctrl+S (save)
         if (e.ctrlKey && e.key === 's') {
             e.preventDefault();
             return false;
         }
-        // 禁用 Ctrl+P (打印)
+        // Disable Ctrl+P (print)
         if (e.ctrlKey && e.key === 'p') {
             e.preventDefault();
             return false;
         }
-        // 禁用 Ctrl+U (查看源代码)
+        // Disable Ctrl+U (view source)
         if (e.ctrlKey && e.key === 'u') {
             e.preventDefault();
             return false;
         }
     }, { capture: true });
     
-    // 禁用触摸设备的长按菜单
+    // Disable long-press menu on touch devices
     document.addEventListener('touchstart', (e) => {
         if (e.touches.length > 1) {
             e.preventDefault();
         }
     }, { passive: false, capture: true });
     
-    // 禁用双指缩放
+    // Disable pinch-to-zoom
     document.addEventListener('touchmove', (e) => {
         if (e.touches.length > 1) {
             e.preventDefault();
         }
     }, { passive: false, capture: true });
     
-    // 阻止鼠标选择文本
+    // Prevent mouse text selection
     document.addEventListener('mousedown', (e) => {
-        // 允许按钮点击
+        // Allow button clicks
         if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
             return true;
         }
-        // 阻止其他元素的鼠标按下（防止拖拽选择）
-        if (e.detail > 1) { // 双击或多击
+        // Block mousedown on other elements (prevents drag-select)
+        if (e.detail > 1) { // Double or multi-click
             e.preventDefault();
             return false;
         }
     }, { capture: true });
-    
-    // console.log('Browser defaults disabled for better game experience');
 }
 
-// 更新预加载进度
+// Update preload progress bar
 function updatePreloadProgress(progress) {
     const progressBar = document.getElementById('progress-bar');
     const percentage = document.getElementById('preloader-percentage');
@@ -119,13 +117,13 @@ function updatePreloadProgress(progress) {
     }
 }
 
-// 预加载所有游戏资源
+// Preload all game assets
 async function preloadGameAssets() {
     const basePath = window.location.pathname.includes('/FNAE-HTML5-1.2.2-fix/') 
         ? '/FNAE-HTML5-1.2.2-fix/' 
         : './';
     
-    // 定义所有需要预加载的资源
+    // Define all assets to preload
     const imagePaths = [
         'assets/images/original.png',
         'assets/images/Cam1.png',
@@ -152,8 +150,8 @@ async function preloadGameAssets() {
         'assets/images/scaryhawking.png',
         'assets/images/scaryep.png',
         'assets/images/scarytrump.png',
-        'assets/images/winscreen.png',  // Night 5 胜利画面
-        'assets/images/goldenstephen.png',  // Golden 霍金
+        'assets/images/winscreen.png',  // Night 5 win screen
+        'assets/images/goldenstephen.png',  // Golden Hawking
         'assets/images/mrstephen.png'
     ];
     
@@ -168,13 +166,13 @@ async function preloadGameAssets() {
         'assets/sounds/chimes.ogg',
         'assets/sounds/Crank1.ogg',
         'assets/sounds/Crank2.ogg',
-        'assets/sounds/goldenstephenscare.ogg'  // Golden 霍金音效
+        'assets/sounds/goldenstephenscare.ogg'  // Golden Hawking sound
     ];
     
     totalAssets = imagePaths.length + soundPaths.length;
     loadedAssets = 0;
     
-    // 预加载图片
+    // Preload images
     const imagePromises = imagePaths.map(path => {
         return new Promise((resolve) => {
             const img = new Image();
@@ -193,7 +191,7 @@ async function preloadGameAssets() {
         });
     });
     
-    // 预加载音频（不阻塞，快速加载）
+    // Preload audio (non-blocking, fast load)
     const audioPromises = soundPaths.map(path => {
         return new Promise((resolve) => {
             const audio = new Audio();
@@ -213,17 +211,17 @@ async function preloadGameAssets() {
         });
     });
     
-    // 等待所有资源加载完成
+    // Wait for all assets to finish loading
     await Promise.all([...imagePromises, ...audioPromises]);
     
-    // 确保进度条显示100%
+    // Ensure progress bar shows 100%
     updatePreloadProgress(100);
     
-    // 等待一小段时间让玩家看到100%
+    // Brief pause so player can see 100%
     await new Promise(resolve => setTimeout(resolve, 500));
 }
 
-// 隐藏预加载动画
+// Hide preloader
 function hidePreloader() {
     const preloader = document.getElementById('preloader');
     if (preloader) {
@@ -235,61 +233,58 @@ function hidePreloader() {
     }
 }
 
-// 页面加载完成后启动
+// Start after page loads
 window.addEventListener('DOMContentLoaded', async () => {
-    // 禁用浏览器默认行为
+    // Disable browser defaults
     disableBrowserDefaults();
     
-    // 先预加载所有资源
     // Start static noise during preloader
     staticNoise = new StaticNoise();
     staticNoise.start();
     
+    // Preload all assets
     await preloadGameAssets();
     
-    // 预加载背景图片（用于恐怖脸效果）
+    // Preload background images for scary face effect
     preloadBackgrounds();
     
-    // 隐藏预加载动画
+    // Hide preloader
     hidePreloader();
     
-    // 初始化游戏
+    // Initialize game
     game = new Game();
-    staticNoise = new StaticNoise();    
-    // 更新Continue按钮显示
+    staticNoise = new StaticNoise();
+
+    // Update Continue button display
     game.updateContinueButton();
     
     const mainMenu = document.getElementById('main-menu');
     
-    // 检查是否从外部页面启动（带autostart参数）
+    // Check if launched from external page (autostart param)
     const urlParams = new URLSearchParams(window.location.search);
     const autostart = urlParams.get('autostart');
     
-    // 启动菜单音乐
+    // Start menu music
     const menuMusic = document.getElementById('menu-music');
     if (menuMusic) {
         menuMusic.volume = 0.5;
         
-        // 如果是autostart，立即尝试播放
         if (autostart === '1') {
-            // console.log('检测到autostart参数，尝试自动播放音乐...');
-            menuMusic.play().then(() => {
-                // console.log('✅ 音乐自动播放成功！');
-            }).catch(e => {
-                // console.log('❌ 自动播放失败，等待用户交互:', e);
-                // 失败则等待用户点击
+            menuMusic.play().catch(e => {
                 setupManualPlayback();
             });
         } else {
-            // 正常流程：等待用户点击
             setupManualPlayback();
         }
         
         function setupManualPlayback() {
             const playMusic = () => {
-                if (mainMenu && !mainMenu.classList.contains('hidden')) {
-                    menuMusic.play().catch(e => {/* console.log('音乐播放需要用户交互') */});
-                }
+                // Only play if main menu is still visible at the time of the click
+                requestAnimationFrame(() => {
+                    if (mainMenu && !mainMenu.classList.contains('hidden')) {
+                        menuMusic.play().catch(e => {});
+                    }
+                });
                 document.removeEventListener('click', playMusic);
                 document.removeEventListener('keydown', playMusic);
             };
@@ -299,7 +294,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
     }
     
-    // 监听主菜单显示/隐藏，控制雪花和鬼脸效果
+    // Watch for main menu show/hide to control static and flicker effects
     const observer = new MutationObserver(() => {
         if (mainMenu && !mainMenu.classList.contains('hidden')) {
             startScaryFaceFlicker();
@@ -320,20 +315,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// 监听来自父页面的消息（iframe 通信）
+// Listen for messages from parent page (iframe communication)
 window.addEventListener('message', (event) => {
     if (event.data.type === 'USER_CLICKED_PLAY') {
-        // console.log('收到父页面的用户点击事件');
         const menuMusic = document.getElementById('menu-music');
         if (menuMusic) {
-            // 立即尝试播放音乐
             menuMusic.volume = 0.5;
-            menuMusic.play().then(() => {
-                // console.log('✅ 音乐自动播放成功！');
-            }).catch(e => {
-                // console.log('❌ 音乐播放失败:', e);
-                // 如果失败，等待用户在游戏内点击
-            });
+            menuMusic.play().catch(e => {});
         }
     }
 });
